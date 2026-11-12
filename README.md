@@ -10,6 +10,30 @@ Working examples for the [MetalCharts metals price API](https://metalcharts.org/
 
 [Get a free API key](https://metalcharts.org/metals-api)
 
+## Client libraries
+
+| Language | Install | Source |
+|---|---|---|
+| Python 3.9+ | `pip install git+https://github.com/maxcash2147/metalcharts-python` | [metalcharts-python](https://github.com/maxcash2147/metalcharts-python) |
+| JavaScript / TypeScript (Node 18+, Bun, Deno, edge) | `npm install github:maxcash2147/metalcharts-js` | [metalcharts-js](https://github.com/maxcash2147/metalcharts-js) |
+
+Both read the key from `METALCHARTS_API_KEY`, raise typed errors for plan and rate limits, and handle the live price stream with reconnects:
+
+```python
+from metalcharts import MetalCharts
+
+client = MetalCharts()
+print(client.prices("XAU")["data"]["XAU"]["price"])
+```
+
+```js
+import { MetalCharts } from "metalcharts";
+
+const client = new MetalCharts();
+const { data } = await client.prices({ symbols: "XAU" });
+console.log(data.XAU.price);
+```
+
 ## Postman, n8n and spreadsheets
 
 - **Postman:** import [`postman/MetalCharts.postman_collection.json`](postman/MetalCharts.postman_collection.json), set the `apiKey` collection variable, and every endpoint is ready to send, grouped by topic with example parameters.
