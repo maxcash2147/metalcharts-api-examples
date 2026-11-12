@@ -11,8 +11,9 @@
  *      Add a property named METALCHARTS_KEY with your key (mc_live_...).
  *   3. Use =METALPRICE("XAU") in any cell.
  *
- * Why a script and not IMPORTDATA: the API key travels in an Authorization
- * header, and IMPORTDATA can only fetch a plain URL.
+ * Why a script and not IMPORTDATA: the key stays in Script Properties, where
+ * people you share the sheet with can't read it. An IMPORTDATA formula has to
+ * carry the key in its URL. See README.md in this folder for that option.
  *
  * Results are cached for six hours (the longest Apps Script allows), so
  * each distinct combination of symbol, currency and unit costs at most four

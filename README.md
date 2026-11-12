@@ -3,12 +3,19 @@
 Working examples for the [MetalCharts metals price API](https://metalcharts.org/metals-api): live and historical prices for gold, silver, platinum, palladium, copper and base metals as JSON or CSV, plus COMEX warehouse inventory, CFTC Commitments of Traders positioning, and Shanghai (SGE, SHFE), Guangzhou (GFEX), LBMA vault and India data.
 
 - **Base URL:** `https://api.metalcharts.org`
-- **Auth:** `Authorization: Bearer mc_live_YOUR_KEY`
+- **Auth:** `Authorization: Bearer mc_live_YOUR_KEY`. For tools that can't set headers (spreadsheet formulas, some no-code tools), GET requests also accept `api_key=mc_live_YOUR_KEY` as a query parameter.
 - **Free tier:** 200 requests a month and 30 days of daily history, no card. Commercial use is allowed on every plan. A public page or app on the free plan must show a "Metal prices by MetalCharts" link to https://metalcharts.org next to the data; paid plans don't need it.
 - **Docs:** [API reference](https://metalcharts.org/metals-api/docs) (every endpoint, parameter and response field), [more examples](https://metalcharts.org/metals-api/examples), [OpenAPI 3.0 document](https://api.metalcharts.org/docs/json)
 - **Pricing:** [metalcharts.org/api-pricing](https://metalcharts.org/api-pricing)
 
 [Get a free API key](https://metalcharts.org/metals-api)
+
+## Postman, n8n and spreadsheets
+
+- **Postman:** import [`postman/MetalCharts.postman_collection.json`](postman/MetalCharts.postman_collection.json), set the `apiKey` collection variable, and every endpoint is ready to send, grouped by topic with example parameters.
+- **n8n:** [`n8n/`](n8n/) has two importable workflows built from standard nodes: a daily gold and silver price log in Google Sheets, and an alert when gold moves 2% in a day.
+- **Google Sheets:** one `IMPORTDATA` formula, or a `=METALPRICE("XAU")` custom function that keeps the key private. See [`google-sheets/`](google-sheets/README.md).
+- **Excel:** a Power Query table in [`excel/prices.pq`](excel/prices.pq).
 
 ## Quick start
 
@@ -48,11 +55,15 @@ curl -H "Authorization: Bearer mc_live_YOUR_KEY" \
 | [`javascript/poll-prices.mjs`](javascript/poll-prices.mjs) | Poll every metal on a timer without wasting quota |
 | [`php/prices.php`](php/prices.php) | Every metal's price with plain cURL |
 | [`go/prices.go`](go/prices.go) | Gold price in Go, standard library only |
+| [`google-sheets/README.md`](google-sheets/README.md) | Prices in Google Sheets with one `IMPORTDATA` formula |
 | [`google-sheets/METALPRICE.gs`](google-sheets/METALPRICE.gs) | `=METALPRICE("XAU")` custom function for Google Sheets |
 | [`excel/prices.pq`](excel/prices.pq) | Live prices table in Excel with Power Query |
 | [`curl.sh`](curl.sh) | Prices, conversion, history and COMEX inventory with curl |
+| [`postman/MetalCharts.postman_collection.json`](postman/MetalCharts.postman_collection.json) | Postman collection with every endpoint |
+| [`n8n/daily-gold-silver-to-google-sheets.json`](n8n/daily-gold-silver-to-google-sheets.json) | n8n workflow: daily gold and silver prices appended to a Google Sheet |
+| [`n8n/gold-move-alert.json`](n8n/gold-move-alert.json) | n8n workflow: webhook alert when gold moves 2% in a day |
 
-Every example reads the key from the `METALCHARTS_API_KEY` environment variable, except the spreadsheet ones, which say where the key goes.
+Every example reads the key from the `METALCHARTS_API_KEY` environment variable, except the spreadsheet, Postman and n8n ones, which say where the key goes.
 
 ## Main endpoints
 
@@ -66,16 +77,18 @@ Every example reads the key from the `METALCHARTS_API_KEY` environment variable,
 | `GET /v1/comex/inventory` | COMEX registered, eligible and total warehouse stocks | Pro |
 | `GET /v1/cot` | CFTC Commitments of Traders positioning | Pro |
 | `GET /v1/bulk/history` | Every daily bar for the requested metals as one CSV | Ultimate |
+| `GET /v1/stream/prices` | Live prices pushed as Server-Sent Events, no polling | Pro |
+| `GET /v1/usage` | Your plan, limits and usage this month. Costs nothing | Free |
 
 Exchange data (COMEX, LBMA, Shanghai, India and CFTC positioning) starts on the Pro plan. The [API reference](https://metalcharts.org/metals-api/docs) lists all 59 endpoints with their parameters, response fields and the plan each needs.
 
 ## Things worth knowing
 
 - **JSON by default, CSV on request.** Add `format=csv` to any endpoint whose response is a list.
-- **No WebSocket.** The API is REST over HTTPS. Spot responses are cached for about 30 seconds, so polling faster than that returns the same quote.
+- **Streaming or polling.** On Pro and above, `GET /v1/stream/prices` keeps one connection open and sends a `snapshot` event, then a `price` event whenever a quote changes (Server-Sent Events, so any HTTP client can read it). Pro allows 1 connection, Ultimate 10, Enterprise 50. On other plans, poll `/v1/prices`: spot responses are cached for about 30 seconds, so polling faster than that returns the same quote.
 - **One request, every metal.** A backend that polls `/v1/prices` every 10 minutes uses about 4,300 requests a month.
 - **Rate limits are in the headers.** Responses carry `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset`. A key over its per-minute limit gets a 429 with `Retry-After`.
-- **Errors are JSON:** 400 for an invalid parameter, 401 for a missing or invalid key, 403 when the request needs a higher plan or reaches past the plan's history.
+- **Errors are JSON:** 400 for an invalid parameter, 401 for a missing or invalid key, 403 when the request needs a higher plan or reaches past the plan's history (with `required_plan` and `upgrade_url` where they apply), 429 over a limit (with `Retry-After` and `retryAt`).
 - **AI assistants:** a hosted MCP server exposes the same data to Claude, ChatGPT and other MCP clients. See [metalcharts.org/metals-api/mcp](https://metalcharts.org/metals-api/mcp).
 
 ## License

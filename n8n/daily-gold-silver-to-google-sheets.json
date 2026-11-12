@@ -1,0 +1,196 @@
+{
+  "name": "Daily gold and silver price to Google Sheets (MetalCharts API)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Daily gold and silver price to Google Sheets\n\nAppends one row a day with the gold and silver spot price, their 24-hour change and the gold/silver ratio.\n\n**Setup**\n1. Get a free MetalCharts API key at https://metalcharts.org/metals-api\n2. In **Get gold and silver prices**, create a **Header Auth** credential: Name `Authorization`, Value `Bearer mc_live_...` (your key).\n3. Make a Google Sheet with these headers in row 1:\n`date, gold_usd_oz, gold_change_pct, silver_usd_oz, silver_change_pct, gold_silver_ratio`\n4. In **Append row**, connect Google and pick the sheet and tab.\n5. Activate the workflow.\n\nOne request a day, about 31 a month, so it fits the free plan (200 a month). A public sheet on the free plan needs a \"Metal prices by MetalCharts\" link to https://metalcharts.org.\n\nFor euros per gram, add query parameters `currency=EUR` and `unit=g` to the HTTP Request and rename the columns.",
+        "height": 560,
+        "width": 420
+      },
+      "id": "40a0ff09-6daa-56ff-af7a-c4f737dd09ea",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 21
+            }
+          ]
+        }
+      },
+      "id": "baec0acf-d03e-5238-ad31-352d6d9bbd03",
+      "name": "Every day at 21:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.metalcharts.org/v1/prices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "symbols",
+              "value": "XAU,XAG"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "183a3458-f5e2-560b-86c6-b5dcb302fa04",
+      "name": "Get gold and silver prices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0fa00827-d89c-5baa-9c25-8a7235c8b014",
+              "name": "date",
+              "value": "={{ $json.timestamp.slice(0, 10) }}",
+              "type": "string"
+            },
+            {
+              "id": "9c4705bd-cb62-5b68-929b-84ed5e67b2dc",
+              "name": "gold_usd_oz",
+              "value": "={{ $json.data.XAU.price }}",
+              "type": "number"
+            },
+            {
+              "id": "9e571d7c-f732-5d99-90a4-78898954e9f1",
+              "name": "gold_change_pct",
+              "value": "={{ $json.data.XAU.changePercent24h }}",
+              "type": "number"
+            },
+            {
+              "id": "b876426f-a729-5d4e-b942-a32e288885cd",
+              "name": "silver_usd_oz",
+              "value": "={{ $json.data.XAG.price }}",
+              "type": "number"
+            },
+            {
+              "id": "640be860-ed86-509a-8bc2-4cc00d1874f1",
+              "name": "silver_change_pct",
+              "value": "={{ $json.data.XAG.changePercent24h }}",
+              "type": "number"
+            },
+            {
+              "id": "19f4df99-d434-58e8-9f3b-10c3fd7e45a2",
+              "name": "gold_silver_ratio",
+              "value": "={{ Math.round($json.data.XAU.price / $json.data.XAG.price * 100) / 100 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9c6bce88-bb50-5b10-b63e-1b191a588683",
+      "name": "Shape the row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "61a87dd4-82d7-5114-819b-74cefca18f31",
+      "name": "Append row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Every day at 21:00": {
+      "main": [
+        [
+          {
+            "node": "Get gold and silver prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get gold and silver prices": {
+      "main": [
+        [
+          {
+            "node": "Shape the row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape the row": {
+      "main": [
+        [
+          {
+            "node": "Append row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

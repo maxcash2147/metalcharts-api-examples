@@ -1,0 +1,2715 @@
+{
+  "info": {
+    "_postman_id": "63eb37ab-ca86-5a22-856b-93cdbaef716c",
+    "name": "MetalCharts API",
+    "description": "Live and historical prices for precious and base metals, plus the exchange data behind them: COMEX warehouse inventory and deliveries, LBMA vaults and clearing, Shanghai SGE and SHFE, India MCX premiums, Guangzhou GFEX warehouse receipts, and CFTC Commitments of Traders positioning. Commercial use is permitted on every plan including the free tier, which allows 200 requests a month. On the free tier, any public display of the data must show a visible link to https://metalcharts.org, such as \"Metal prices by MetalCharts\"; free-tier responses carry an X-Attribution header saying so. Paid plans need no link.\n\n## Setup\n\n1. Get a free API key at https://metalcharts.org/metals-api (200 requests a month, no card).\n2. Open the collection's Variables tab and set `apiKey` to your key (`mc_live_...`). Put it in the Current value column so it stays on your machine and is not synced or shared.\n3. Send any request. Auth is set once on the collection: `Authorization: Bearer {{apiKey}}`.\n\nOptional parameters are listed on each request but switched off; tick them to use them.\n\n- API reference: https://metalcharts.org/metals-api/docs\n- Pricing: https://metalcharts.org/api-pricing\n- OpenAPI 3.0 document: https://api.metalcharts.org/docs/json\n- Code examples: https://github.com/maxcash2147/metalcharts-api-examples",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.metalcharts.org",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "mc_live_your_key_here",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Account",
+      "description": "Your plan and usage. Free to call.",
+      "item": [
+        {
+          "name": "Your usage and limits",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usage"
+              ]
+            },
+            "description": "Your plan, its per-minute and monthly limits, and what you have used this month, with a 30-day daily history. Costs no weight, so checking it never uses quota.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Prices",
+      "description": "Real-time spot prices for all supported assets",
+      "item": [
+        {
+          "name": "Latest spot prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/prices?symbols=XAU,XAG",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "prices"
+              ],
+              "query": [
+                {
+                  "key": "symbols",
+                  "value": "XAU,XAG",
+                  "description": "Comma-separated symbols."
+                },
+                {
+                  "key": "currency",
+                  "value": "EUR",
+                  "description": "ISO 4217 code to quote in. Default USD. One of: USD, EUR, GBP, JPY, CHF, AUD, CAD, CNY, INR, SGD, HKD, NZD, SEK, NOK, DKK, MXN, BRL, ZAR, TRY, PLN, CZK, HUF, RON, ISK, ILS, KRW, IDR, MYR, PHP, THB, AED, SAR.",
+                  "disabled": true
+                },
+                {
+                  "key": "unit",
+                  "value": "g",
+                  "description": "Mass unit to quote per: toz, g, kg, lb, mt, tola (toz is the troy ounce; oz is accepted as an alias). Default: the market's own unit.",
+                  "disabled": true
+                },
+                {
+                  "key": "karat",
+                  "value": "22",
+                  "description": "Gold only: price 24, 23, 22, 21, 20, 18, 16, 15, 14, 12, 10, 9, 8-karat gold at nominal purity karat/24 (24K is the spot price).",
+                  "disabled": true
+                },
+                {
+                  "key": "format",
+                  "value": "csv",
+                  "description": "csv returns the same data as text/csv.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest spot prices for all supported assets (precious and base metals plus key benchmarks) in a single call, keyed by symbol. Prices are in US dollars per each market's own unit unless `currency`, `unit` or `karat` say otherwise; every quote states the `currency` and `unit` it is in, and a converted response carries the `fx` rate used (ECB reference rate). `karat` returns gold only, at nominal purity karat/24.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "List supported metals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/metals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "metals"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "symbol",
+                  "description": "Field to sort by.",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "asc or desc.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Reference list of supported metals with their names, categories, and units.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Convert between metals, currencies and units",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/convert?from=XAU&to=EUR&amount=10&unit=g",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "convert"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "XAU",
+                  "description": "Required. A metal symbol (XAU), a currency (EUR) or a unit (g)."
+                },
+                {
+                  "key": "to",
+                  "value": "EUR",
+                  "description": "Required. A metal symbol, a currency or a unit."
+                },
+                {
+                  "key": "amount",
+                  "value": "10",
+                  "description": "Quantity of `from`. Default 1."
+                },
+                {
+                  "key": "unit",
+                  "value": "g",
+                  "description": "For a metal: the unit its quantity is in (toz, g, kg, lb, mt, tola). Default: the metal's own unit."
+                },
+                {
+                  "key": "karat",
+                  "value": "22",
+                  "description": "For gold to or from a currency: karat purity (karat/24).",
+                  "disabled": true
+                },
+                {
+                  "key": "date",
+                  "value": "2025-01-15",
+                  "description": "YYYY-MM-DD: convert at that day's closing price and ECB rate instead of live. Counts as history for plan limits.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Converts an amount between a metal, a currency and a mass unit: 10 g of gold in euros (from=XAU&to=EUR&amount=10&unit=g), how much silver 1,000 rupees buys (from=INR&to=XAG&unit=g), euros to yen, or grams to troy ounces. Metal prices are live spot (or the close on `date`), currency rates are ECB reference rates. `karat` prices gold at nominal purity karat/24. A `date` counts as history: Free reaches 30 days back, paid plans their history depth.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Stream live prices (Server-Sent Events)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/stream/prices?symbols=XAU,XAG",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "stream",
+                "prices"
+              ],
+              "query": [
+                {
+                  "key": "symbols",
+                  "value": "XAU,XAG",
+                  "description": "Comma-separated symbols. Omit for every metal."
+                },
+                {
+                  "key": "currency",
+                  "value": "EUR",
+                  "description": "ISO 4217 code. Default USD.",
+                  "disabled": true
+                },
+                {
+                  "key": "unit",
+                  "value": "g",
+                  "description": "toz, g, kg, lb, mt or tola.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Holds the connection open and sends text/event-stream. The first event is `snapshot` with every requested symbol (`data: {\"data\": {\"XAU\": {...}}, \"timestamp\": \"...\"}`), then a `price` event (`data: {\"symbol\": \"XAU\", ...quote}`) each time a quote changes. A `: ping` comment arrives about every 15 seconds. The server may close the stream at any time, so clients should reconnect with backoff.\n\nConcurrent connections: Pro 1, Ultimate 10, Enterprise 50. Other plans get a 403 with `required_plan`, and one connection too many gets a 429.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "description": "Historical price data and candles",
+      "item": [
+        {
+          "name": "Price history for a metal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/history/:symbol?range=1M&interval=1d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "history",
+                ":symbol"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL."
+                },
+                {
+                  "key": "interval",
+                  "value": "1d",
+                  "description": "Candle size: 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w or 1M. Intraday needs a paid plan."
+                },
+                {
+                  "key": "start",
+                  "value": "2026-01-01",
+                  "description": "YYYY-MM-DD. Overrides range.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "2026-06-30",
+                  "description": "YYYY-MM-DD, used with start. Defaults to now.",
+                  "disabled": true
+                },
+                {
+                  "key": "currency",
+                  "value": "EUR",
+                  "description": "ISO 4217 code to quote in. Default USD. One of: USD, EUR, GBP, JPY, CHF, AUD, CAD, CNY, INR, SGD, HKD, NZD, SEK, NOK, DKK, MXN, BRL, ZAR, TRY, PLN, CZK, HUF, RON, ISK, ILS, KRW, IDR, MYR, PHP, THB, AED, SAR.",
+                  "disabled": true
+                },
+                {
+                  "key": "unit",
+                  "value": "g",
+                  "description": "Mass unit to quote per: toz, g, kg, lb, mt, tola (toz is the troy ounce; oz is accepted as an alias). Default: the market's own unit.",
+                  "disabled": true
+                },
+                {
+                  "key": "karat",
+                  "value": "22",
+                  "description": "Gold only: price 24, 23, 22, 21, 20, 18, 16, 15, 14, 12, 10, 9, 8-karat gold at nominal purity karat/24 (24K is the spot price).",
+                  "disabled": true
+                },
+                {
+                  "key": "format",
+                  "value": "csv",
+                  "description": "csv returns the same data as text/csv.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Historical price series for a metal. Symbols are the metal codes, not names: XAU (gold), XAG (silver), XPT (platinum), XPD (palladium), HG (copper), plus ALI, NI, ZN, PB, JBP, CO, LC and UXA.`GOLD` is not valid here; it belongs to /v1/markets. Use the range parameter (for example 1M, 6M, 1Y or ALL; MAX is accepted as a synonym for ALL) or a start date to set the window; start overrides range, and end (used only with start) defaults to now. interval picks the candle size. Supported intervals are 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w and 1M; intraday intervals read the interval candle tables and 1w/1M are aggregated from daily candles. Prices are in US dollars per the market's own unit unless currency, unit or karat say otherwise; each point is converted at the ECB reference rate in force on its date (FX history starts 1999-01-04, and earlier points are left out of a converted series). The response states the currency and unit it is in.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk daily history download",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bulk/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bulk",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "symbols",
+                  "value": "XAU,XAG",
+                  "description": "Comma-separated metal codes. Default: all of XAU, XAG, XPT, XPD, HG, ALI, NI, ZN, PB, JBP, CO, LC, UXA.",
+                  "disabled": true
+                },
+                {
+                  "key": "currency",
+                  "value": "EUR",
+                  "description": "ISO 4217 code to quote in. Default USD. One of: USD, EUR, GBP, JPY, CHF, AUD, CAD, CNY, INR, SGD, HKD, NZD, SEK, NOK, DKK, MXN, BRL, ZAR, TRY, PLN, CZK, HUF, RON, ISK, ILS, KRW, IDR, MYR, PHP, THB, AED, SAR.",
+                  "disabled": true
+                },
+                {
+                  "key": "unit",
+                  "value": "g",
+                  "description": "Mass unit to quote per: toz, g, kg, lb, mt, tola (toz is the troy ounce; oz is accepted as an alias). Default: the market's own unit.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Every daily bar for the requested metals, back to the start of each series (October 1966 for gold and silver), as one CSV file with columns symbol, date, open, high, low, close, volume, currency, unit. `currency` and `unit` convert as on /v1/history (FX history starts 1999-01-04, so a converted file starts there). For an initial load or a nightly sync. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Regional",
+      "description": "Regional exchange data (COMEX, LBMA, Shanghai, India, GFEX)",
+      "item": [
+        {
+          "name": "Latest Shanghai prices and premiums",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/shanghai",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "shanghai"
+              ],
+              "query": [
+                {
+                  "key": "symbols",
+                  "value": "",
+                  "description": "Comma-separated symbols.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "series",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest Shanghai Gold Exchange spot prices and premium to Western pricing. `price` is USD per troy ounce, `priceCNY` is in the exchange's native unit (CNY/kg for silver, CNY/g for gold), and `exchangeRate` is USD/CNY. Shanghai silver prices (SGE and SHFE) include China's VAT and are returned as quoted; `priceExVat`, `priceCNYExVat` and `premiumPercentExVat` strip it at `vatRate`, and `vatInclusive` says whether a price carries VAT. Gold carries none, so its ex-VAT fields equal the raw ones.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Shanghai silver premium history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/shanghai/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "shanghai",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "series",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "start",
+                  "value": "",
+                  "description": "YYYY-MM-DD. Overrides range.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "",
+                  "description": "YYYY-MM-DD, used with start. Defaults to now.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Historical Shanghai silver premium series versus Western pricing. `shanghai` and `premiumPercent` use the SGE silver price as quoted, which includes China's VAT; `shanghaiExVat` and `premiumPercentExVat` strip it at the rate in force on each date (13% since 2019-04-01, 16% from 2018-05-01, 17% before). Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Shanghai gold price history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/shanghai/gold/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "shanghai",
+                "gold",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "series",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "start",
+                  "value": "",
+                  "description": "YYYY-MM-DD. Overrides range.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "",
+                  "description": "YYYY-MM-DD, used with start. Defaults to now.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Historical Shanghai gold price series. Gold carries no VAT, so `shanghaiExVat` and `premiumPercentExVat` equal the raw values. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "IBJA gold rate",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/india/ibja",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "india",
+                "ibja"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 2Y, 5Y, ALL. Default 1M.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "latest",
+                  "description": "latest: the newest rate only.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "The India Bullion and Jewellers Association benchmark gold rate for 999 fine gold, in rupees per gram, one value per day. Requires the Pro plan or higher; depth follows the plan's history limit.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Latest India MCX prices and premiums",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/india",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "india"
+              ],
+              "query": [
+                {
+                  "key": "symbols",
+                  "value": "",
+                  "description": "Comma-separated symbols.",
+                  "disabled": true
+                },
+                {
+                  "key": "fresh",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest MCX India spot prices and premium to Western pricing.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "India MCX premium history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/india/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "india",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "start",
+                  "value": "",
+                  "description": "YYYY-MM-DD. Overrides range.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "",
+                  "description": "YYYY-MM-DD, used with start. Defaults to now.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Historical MCX India premium series versus Western pricing. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "SHFE settlement prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/shfe/settlement?symbol=au",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "shfe",
+                "settlement"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "au",
+                  "description": "Required. cu, al, zn, pb, ni, sn, au or ag."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y or ALL. Defaults to 1Y. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Shanghai Futures Exchange settlement price history for a metal. Requires the Pro plan or higher. Every response carries asOf, ageDays and a stale flag, so you can tell a current series from one that has stopped updating without inspecting the array.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "SHFE warehouse inventory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/shfe/inventory?symbol=cu",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "shfe",
+                "inventory"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "cu",
+                  "description": "Required. cu, al, zn, pb, ni, sn, au or ag."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y or ALL. Defaults to 1Y. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Shanghai Futures Exchange warehouse inventory history for a metal. Requires the Pro plan or higher. Every response carries asOf, ageDays and a stale flag, so you can tell a current series from one that has stopped updating without inspecting the array.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "COMEX warehouse inventory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/comex/inventory?symbol=XAG",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "comex",
+                "inventory"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "XAG",
+                  "description": "Required. Metal symbol: XAU, XAG, HG, XPT, XPD, ALI, ZN or PB (availability varies by endpoint)."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y or ALL. Defaults to 1Y. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "COMEX warehouse inventory history for a metal symbol: exchange-wide registered, eligible and total per day. type=latest returns the newest day with the previous day's figures; type=depositories returns the newest day per depository, with that day's received, withdrawn and adjustment figures. For per-depository history use /v1/comex/depositories. Requires the Pro plan or higher. Every response carries asOf, ageDays and a stale flag, so you can tell a current series from one that has stopped updating without inspecting the array.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "COMEX stocks and flows by depository",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/comex/depositories?symbol=XAU",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "comex",
+                "depositories"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required. Metal symbol: XAU, XAG, HG, XPT, XPD, ALI, ZN or PB."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y or ALL. Defaults to 1M. ALL returns the whole series, and MAX is accepted as a synonym for it. Ignored when start or end is given.",
+                  "disabled": true
+                },
+                {
+                  "key": "start",
+                  "value": "",
+                  "description": "First report date, YYYY-MM-DD.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "",
+                  "description": "Last report date, YYYY-MM-DD. Defaults to today.",
+                  "disabled": true
+                },
+                {
+                  "key": "depository",
+                  "value": "brink",
+                  "description": "Case-insensitive part of a depository name, e.g. jp morgan, brink or hsbc.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Daily COMEX warehouse stocks and flows per depository, laid out like CME's metal depository statistics report: for registered, eligible and total metal, the previous stock, received, withdrawn, net change, adjustment and today's stock. Rows are per report date, with activityDate giving the business day the movements happened. Received, withdrawn and adjustment are null on report dates before flowsAvailableFrom; stocks go back to February 2026 for most metals. Use /v1/comex/inventory for the exchange-wide totals, which go back to 1992 for gold and silver. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "COMEX volume and open interest",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/comex/volume-oi?symbol=XAU",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "comex",
+                "volume-oi"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required. Metal symbol: XAU, XAG, HG, XPT, XPD, ALI, ZN or PB (availability varies by endpoint)."
+                }
+              ]
+            },
+            "description": "COMEX volume and open interest for a metal symbol. Requires the Pro plan or higher. Every response carries asOf, ageDays and a stale flag, so you can tell a current series from one that has stopped updating without inspecting the array.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "COMEX delivery notices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/comex/delivery-notices?symbol=XAU",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "comex",
+                "delivery-notices"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required. Metal symbol: XAU, XAG, HG, XPT, XPD, ALI, ZN or PB (availability varies by endpoint)."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y or ALL. Defaults to 1Y. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "year",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "date",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "COMEX delivery notice history for a metal symbol. Requires the Pro plan or higher. Every response carries asOf, ageDays and a stale flag, so you can tell a current series from one that has stopped updating without inspecting the array.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "SGE contract trading history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/sge/trading?contract=Au99.99",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "sge",
+                "trading"
+              ],
+              "query": [
+                {
+                  "key": "contract",
+                  "value": "Au99.99",
+                  "description": "Required. Au99.99, Au99.95, Au(T+D), mAu(T+D), Ag(T+D) or Ag99.99."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y or ALL. Defaults to ALL. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Shanghai Gold Exchange contract trading history. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "SGE gold and silver benchmark fixings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/sge/benchmark?metal=gold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "sge",
+                "benchmark"
+              ],
+              "query": [
+                {
+                  "key": "metal",
+                  "value": "gold",
+                  "description": "Required. gold or silver."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1Y, 2Y, 5Y or ALL. Defaults to ALL. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Shanghai Gold Exchange AM and PM benchmark fixings for gold or silver, one row per trading day dated in Shanghai time. Gold is in CNY per gram, silver in CNY per kilogram. New fixings are fetched on weekdays at 03:00 and 07:00 UTC, shortly after each auction. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "SGE vault inventory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/sge/inventory?metal=silver",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "sge",
+                "inventory"
+              ],
+              "query": [
+                {
+                  "key": "metal",
+                  "value": "silver",
+                  "description": "Required. gold or silver."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1Y, 2Y, 5Y or ALL. Defaults to ALL. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "latest",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Shanghai Gold Exchange vault inventory history. Every response carries asOf, ageDays and a stale flag, so you can tell current inventory from an archived series without inspecting the array. Coverage is uneven and worth knowing before you build on it: silver vault stock updates normally, but the exchange feed has only ever produced ten gold vault-stock observations and the most recent is from January 2016, so metal=gold returns an archive rather than a current series. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "GFEX platinum and palladium settlement prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/gfex/settlement?symbol=pt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "gfex",
+                "settlement"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "pt",
+                  "description": "Required. pt or pd."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y or ALL. Defaults to ALL. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GFEX settlement price history for platinum or palladium. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "GFEX premium over Western prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/gfex/premium",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "gfex",
+                "premium"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "pt",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y or ALL. Defaults to 1Y. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GFEX platinum and palladium premium history versus Western pricing. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "GFEX warehouse receipts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/gfex/receipts?symbol=LC",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "gfex",
+                "receipts"
+              ],
+              "query": [
+                {
+                  "key": "symbol",
+                  "value": "LC",
+                  "description": "Required. LC, SI, PS, XPT or XPD."
+                },
+                {
+                  "key": "type",
+                  "value": "totals",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "date",
+                  "value": "2026-09-17",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "start",
+                  "value": "2026-01-01",
+                  "description": "YYYY-MM-DD. Overrides range.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "2026-09-17",
+                  "description": "YYYY-MM-DD, used with start. Defaults to now.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GFEX registered warehouse receipts, per warehouse and per day. Covers lithium carbonate (LC), industrial silicon (SI) and polysilicon (PS), which is Chinese battery and solar supply-chain inventory published only in Chinese, plus platinum (XPT) and palladium (XPD). The default response is the per-warehouse breakdown for the most recent date, or an explicit date. Pass type=totals for the exchange-wide daily series instead. Warehouse names are the exchange's own and are passed through unaltered, because they are identifiers you match against exchange notices. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "GFEX warehouse receipts coverage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/gfex/receipts/coverage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "gfex",
+                "receipts",
+                "coverage"
+              ]
+            },
+            "description": "Which symbols the GFEX receipts dataset covers, how many warehouses each spans, and the date range held. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "LBMA vault holdings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/lbma/vault?metal=gold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "lbma",
+                "vault"
+              ],
+              "query": [
+                {
+                  "key": "metal",
+                  "value": "gold",
+                  "description": "Required. gold or silver."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1Y, 2Y, 5Y or ALL. Defaults to ALL. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "LBMA vault holdings history for gold or silver. Requires the Pro plan or higher. Every response carries asOf, ageDays and a stale flag, so you can tell a current series from one that has stopped updating without inspecting the array.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "LBMA clearing statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/lbma/clearing?metal=gold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "lbma",
+                "clearing"
+              ],
+              "query": [
+                {
+                  "key": "metal",
+                  "value": "gold",
+                  "description": "Required. gold or silver."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1Y, 2Y, 5Y or ALL. Defaults to ALL. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "LBMA clearing statistics for gold or silver. Requires the Pro plan or higher. Every response carries asOf, ageDays and a stale flag, so you can tell a current series from one that has stopped updating without inspecting the array.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Commodities",
+      "description": "Energy, agriculture, and industrial commodities",
+      "item": [
+        {
+          "name": "Latest commodity prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/commodities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "commodities"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "symbol",
+                  "description": "Field to sort by.",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "asc or desc.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest prices for energy, agriculture, and industrial commodities. Symbols are contract codes such as CL1 (crude), CO1 (Brent), W_1 (wheat) and KC1 (coffee); call this endpoint to list them all. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Price history for a commodity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/commodities/:symbol/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "commodities",
+                ":symbol",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "interval",
+                  "value": "",
+                  "description": "Candle size: 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w or 1M. Intraday needs a paid plan.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "CL1",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Historical price series for a single commodity. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Crypto",
+      "description": "Cryptocurrency prices and history",
+      "item": [
+        {
+          "name": "Latest cryptocurrency prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/crypto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "crypto"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "symbol",
+                  "description": "Field to sort by.",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "asc or desc.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest cryptocurrency prices. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Price history for a cryptocurrency",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/crypto/:symbol/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "crypto",
+                ":symbol",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "interval",
+                  "value": "",
+                  "description": "Candle size: 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w or 1M. Intraday needs a paid plan.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "BTC",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Historical price series for a single cryptocurrency. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ETFs",
+      "description": "Exchange-traded fund prices and history",
+      "item": [
+        {
+          "name": "Latest ETF prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/etfs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "etfs"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "symbol",
+                  "description": "Field to sort by.",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "asc or desc.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest prices for tracked ETFs such as GLD and SLV. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Price history for an ETF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/etfs/:symbol/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "etfs",
+                ":symbol",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "interval",
+                  "value": "",
+                  "description": "Candle size: 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w or 1M. Intraday needs a paid plan.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "GLD",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Historical price series for a single ETF. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Markets",
+      "description": "Market indices and 24/7 markets",
+      "item": [
+        {
+          "name": "Exchange open and closed status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/market-status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "market-status"
+              ],
+              "query": [
+                {
+                  "key": "exchange",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Current open or closed status and trading hours for supported exchanges.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Service health check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "health"
+              ]
+            },
+            "description": "Service health and database connectivity. Free on every plan and weight 0, so a monitor can poll it without consuming quota.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Latest 24/7 market prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/markets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "markets"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "symbol",
+                  "description": "Field to sort by.",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "description": "asc or desc.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest prices for 24/7 markets.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Price history for a 24/7 market",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/markets/:symbol/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "markets",
+                ":symbol",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "interval",
+                  "value": "",
+                  "description": "Candle size: 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w or 1M. Intraday needs a paid plan.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "GOLD",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Historical series for a single 24/7 market. These symbols are plain names such as GOLD, SILVER, BTC and AAPL, unlike /v1/history which uses metal codes like XAU.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Latest market index values",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/indices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "indices"
+              ],
+              "query": [
+                {
+                  "key": "symbols",
+                  "value": "DXY",
+                  "description": "Comma-separated symbols.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest values for market indices: DXY, SPX and DJI. DXY is a US dollar index computed by MetalCharts from daily reference exchange rates with the standard six-currency weights, updated once a day. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "History for a market index",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/indices/history/:symbol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "indices",
+                "history",
+                ":symbol"
+              ],
+              "query": [
+                {
+                  "key": "interval",
+                  "value": "",
+                  "description": "Candle size: 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w or 1M. Intraday needs a paid plan.",
+                  "disabled": true
+                },
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Maximum rows to return.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "DXY",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Historical series for a single market index. DXY is computed by MetalCharts from daily reference exchange rates with the standard six-currency weights: daily only, from January 1999. Requires the Basic plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "List tracked instruments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/instruments?search=gold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "instruments"
+              ],
+              "query": [
+                {
+                  "key": "asset_class",
+                  "value": "commodity",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "exchange",
+                  "value": "COMEX",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "gold",
+                  "description": ""
+                },
+                {
+                  "key": "limit",
+                  "value": "100",
+                  "description": "Maximum rows to return.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Every instrument the platform tracks, with the exchange and asset class it belongs to. Use this to discover the symbol a given endpoint expects: symbol spaces differ per route, so gold is XAU on /v1/history but GOLD on /v1/markets, and commodities are contract codes such as CL1. Filter with asset_class (commodity, crypto, equity, etf, fx, index, bond), exchange, or a case-insensitive search across symbol and name. Available on every plan including Free.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Instrument counts by asset class",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/instruments/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "instruments",
+                "summary"
+              ]
+            },
+            "description": "Instrument counts per asset class, with the exchanges each covers. A cheap way to see the shape of the catalogue before paging through it. Available on every plan including Free.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Retail bullion dealer prices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bullion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bullion"
+              ],
+              "query": [
+                {
+                  "key": "metal",
+                  "value": "gold",
+                  "description": "Optional. gold, silver, platinum or palladium, or the code XAU, XAG, XPT or XPD, in any case.",
+                  "disabled": true
+                },
+                {
+                  "key": "max_age_days",
+                  "value": "7",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retail bullion prices across competing dealers, with each quote's premium over spot. Every product is normalised to its fine-ounce content so premiums are comparable across coins, bars and junk silver. `best` is the cheapest in-stock quote at or above spot, falling back to the cheapest such quote; a below-spot quote stays in `quotes` but is never `best`, and `best` is null when every fresh quote is below spot. Premium is the figure recorded at scrape time and travels with its own scrapedAt, so price and premium always agree. Filter with metal: gold, silver, platinum or palladium, or the code each product carries in `metal` (XAU, XAG, XPT, XPD), in any case. Quotes older than 7 days are excluded by default and never chosen as `best`, because individual dealer scrapers fail silently and a stale row would otherwise be presented as today's cheapest price; widen or narrow that with max_age_days, and read `asOf`, `ageDays` and `staleQuotesExcluded` to judge freshness yourself. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Dealer quotes for a bullion product",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/bullion/:productId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "bullion",
+                ":productId"
+              ],
+              "query": [
+                {
+                  "key": "max_age_days",
+                  "value": "7",
+                  "description": "",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "1-oz-american-gold-eagle",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Every dealer quote for one bullion product. Product ids are slugs such as 1-oz-american-gold-eagle; call /v1/bullion for the full list. Quotes older than 7 days are excluded by default; widen with max_age_days. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "News",
+      "description": "Market news, sentiment, and summaries",
+      "item": [
+        {
+          "name": "Latest market news",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news"
+              ]
+            },
+            "description": "Latest market news articles.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Paginated news feed",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news/feed?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news",
+                "feed"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "symbols",
+                  "value": "XAU",
+                  "description": "Comma-separated symbols.",
+                  "disabled": true
+                },
+                {
+                  "key": "sources",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Maximum rows to return."
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "since",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "timePeriod",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "symbol",
+                  "description": "Field to sort by.",
+                  "disabled": true
+                },
+                {
+                  "key": "impact",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sourceTypes",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "excludeSourceTypes",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Paginated market news feed.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Search news articles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news/search?q=central bank gold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "central bank gold",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Search news articles by keyword. Costs 3 weight per request.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "News filter values with counts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news/filters",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news",
+                "filters"
+              ]
+            },
+            "description": "Every filter value available on the news endpoints, with a count per value: sources, categories and symbols. Call this to build a filter UI rather than hard-coding the options.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "News categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news",
+                "categories"
+              ]
+            },
+            "description": "The distinct news categories currently in use, for populating a category filter.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "News sentiment candles for a metal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news/sentiment/candles/:symbol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news",
+                "sentiment",
+                "candles",
+                ":symbol"
+              ],
+              "query": [
+                {
+                  "key": "interval",
+                  "value": "",
+                  "description": "Candle size: 15m, 30m, 45m, 1h, 2h, 4h, 8h, 1d, 1w or 1M. Intraday needs a paid plan.",
+                  "disabled": true
+                },
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "Window such as 1M, 6M, 1Y, 5Y or ALL.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "News sentiment aggregated into OHLC-style candles, so sentiment can be charted alongside price. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "News sentiment for a metal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news/sentiment/:symbol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news",
+                "sentiment",
+                ":symbol"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Maximum rows to return.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "AI-scored news sentiment for one metal, aggregated across articles. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Latest news for a symbol",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/news/:symbol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "news",
+                ":symbol"
+              ],
+              "query": [
+                {
+                  "key": "includeTwitter",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sourceTypes",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Maximum rows to return.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Latest news articles filtered to a specific asset symbol.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "description": "COT positioning, supply, ATH, currency rates, and economic calendar",
+      "item": [
+        {
+          "name": "Exchange rates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/currency",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "currency"
+              ],
+              "query": [
+                {
+                  "key": "base",
+                  "value": "EUR",
+                  "description": "Currency the rates are quoted against. Default USD.",
+                  "disabled": true
+                },
+                {
+                  "key": "date",
+                  "value": "2020-03-02",
+                  "description": "YYYY-MM-DD: the ECB reference rates in force that day (history from 1999-01-04). Counts as history for plan limits.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Exchange rates for the 32 currencies the API quotes metals in: the US dollar, the ECB reference set and the pegged UAE dirham and Saudi riyal. `rates` holds units of each currency per one unit of `base` (USD by default). With `date`, the rates in force on that day; on weekends and holidays, the last publication before it. `timestamp` is in milliseconds.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Exchange rate history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/currency/history?currency=EUR&range=1M",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "currency",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "currency",
+                  "value": "EUR",
+                  "description": "Required. The currency to chart."
+                },
+                {
+                  "key": "base",
+                  "value": "USD",
+                  "description": "Quoted against. Default USD.",
+                  "disabled": true
+                },
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y, ALL, MAX. Default 1M."
+                },
+                {
+                  "key": "start",
+                  "value": "2024-01-01",
+                  "description": "YYYY-MM-DD; overrides range.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "2024-12-31",
+                  "description": "YYYY-MM-DD, used with start. Default today.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Daily ECB reference rates for one currency against `base` (units of `currency` per one `base`), one point per ECB publication day, back to 1999-01-04. Depth follows the plan's history limit.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Commitments of Traders positioning",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/cot?metal=XAU",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "cot"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "metal",
+                  "value": "XAU",
+                  "description": "Required. XAU, XAG, HG, XPT or XPD."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, YTD, 1Y, 5Y, 10Y or ALL. Defaults to 1Y. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "COT (Commitments of Traders) positioning history for a metal. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Visible supply and inventory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/supply?metal=XAG",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "supply"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "metal",
+                  "value": "XAG",
+                  "description": "Required. XAU or XAG."
+                },
+                {
+                  "key": "range",
+                  "value": "1Y",
+                  "description": "One of 1M, 3M, 6M, 1Y, 5Y or ALL. Defaults to 1Y. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Visible supply and inventory history for a metal. Requires the Ultimate plan.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "All-time high for a metal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/ath/:symbol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "ath",
+                ":symbol"
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "XAU",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "All time high price and the date it was recorded. Symbols are metal codes such as XAU, XAG, XPT, XPD and HG, not names like GOLD.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Economic calendar events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/economic-calendar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "economic-calendar"
+              ],
+              "query": [
+                {
+                  "key": "country",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "impact",
+                  "value": "",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "days",
+                  "value": "7",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Upcoming and recent macroeconomic calendar events. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Latest perpetual funding rates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/funding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "funding"
+              ],
+              "query": [
+                {
+                  "key": "exchange",
+                  "value": "HYPERLIQUID",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Latest perpetual funding rate for every symbol, optionally scoped to one venue. Funding is the periodic payment between longs and shorts that holds a perpetual near spot: a positive rate means longs pay shorts, so the sign and size read directly as crowd positioning. Rates are per-interval decimals, so 0.0000125 is 0.00125%. Coverage includes GOLD and SILVER perps alongside crypto and tokenised equities. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Funding rate venues",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/funding/venues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "funding",
+                "venues"
+              ]
+            },
+            "description": "Venues currently publishing funding data, with how many symbols each covers and when it last printed. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        },
+        {
+          "name": "Funding rate history for a perpetual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/funding/:symbol/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "funding",
+                ":symbol",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "exchange",
+                  "value": "HYPERLIQUID",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "range",
+                  "value": "1M",
+                  "description": "One of 1D, 1W, 1M, 3M, 6M, 1Y or ALL. Defaults to 1M. ALL returns the whole series, and MAX is accepted as a synonym for it.",
+                  "disabled": true
+                },
+                {
+                  "key": "start",
+                  "value": "2026-01-01",
+                  "description": "YYYY-MM-DD. Overrides range.",
+                  "disabled": true
+                },
+                {
+                  "key": "end",
+                  "value": "2026-09-01",
+                  "description": "YYYY-MM-DD, used with start. Defaults to now.",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "symbol",
+                  "value": "BTC",
+                  "description": "Required."
+                }
+              ]
+            },
+            "description": "Funding rate history for one perpetual, oldest first. Symbols are the venue's own tickers such as BTC, ETH, GOLD, SILVER, NVDA; call /v1/funding for the full list. Set the window with range (1D, 1W, 1M, 3M, 6M, 1Y, ALL) or explicit start and end dates. Requires the Pro plan or higher.\n\nPlans, limits and the full field list: https://metalcharts.org/metals-api/docs"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

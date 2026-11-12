@@ -1,0 +1,153 @@
+{
+  "name": "Alert when gold moves more than 2% in a day (MetalCharts API)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Alert when gold moves more than 2% in a day\n\nChecks the gold spot price every 6 hours and posts a message to a webhook when the 24-hour change reaches 2% up or down. It alerts once per direction per day.\n\n**Setup**\n1. Get a free MetalCharts API key at https://metalcharts.org/metals-api\n2. In **Get gold price**, create a **Header Auth** credential: Name `Authorization`, Value `Bearer mc_live_...` (your key).\n3. In **Send alert**, replace the URL with your Slack or Discord incoming webhook, or any URL that accepts a JSON POST. The body has `text` (Slack) and `content` (Discord).\n4. Activate the workflow.\n\nChange the threshold at the top of **Check the move**.\n\nEvery 6 hours is about 124 requests a month, inside the free plan's 200. On a paid plan, check hourly or every 15 minutes instead.\n\nTo send email, swap **Send alert** for a **Send Email** node and use `{{ $json.message }}` as the text.",
+        "height": 560,
+        "width": 420
+      },
+      "id": "e41ab16c-4387-57b3-b00e-6ff029582d12",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "7a102c6a-9d99-5b0d-a90b-5e4ccb47f219",
+      "name": "Every 6 hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.metalcharts.org/v1/prices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "symbols",
+              "value": "XAU"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b4b74470-2374-5af1-8e28-8f6c6e274352",
+      "name": "Get gold price",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Alert when gold's 24-hour change is 2% or more either way.\nconst THRESHOLD = 2; // percent\n\nconst quote = $input.first().json.data.XAU;\nconst change = quote.changePercent24h;\nif (change === null || change === undefined || Math.abs(change) < THRESHOLD) {\n  return [];\n}\n\n// One alert per direction per day. Workflow static data is saved only when\n// the workflow runs from its trigger, so manual test runs alert every time.\nconst direction = change > 0 ? 'up' : 'down';\nconst key = `${quote.timestamp.slice(0, 10)}:${direction}`;\nconst state = $getWorkflowStaticData('global');\nif (state.lastAlert === key) {\n  return [];\n}\nstate.lastAlert = key;\n\nconst message =\n  `Gold is ${direction} ${Math.abs(change).toFixed(2)}% in 24 hours: ` +\n  `$${quote.price.toFixed(2)} an ounce (${quote.timestamp})`;\n\nreturn [{ json: { message, price: quote.price, changePercent24h: change, timestamp: quote.timestamp } }];\n"
+      },
+      "id": "1ad0d194-bd57-5f6e-9c77-ca40ffaedd3c",
+      "name": "Check the move",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/REPLACE/WITH/YOUR_WEBHOOK",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d42e6f94-2c27-5e2c-93ec-54ea1f38853d",
+      "name": "Send alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Every 6 hours": {
+      "main": [
+        [
+          {
+            "node": "Get gold price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get gold price": {
+      "main": [
+        [
+          {
+            "node": "Check the move",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the move": {
+      "main": [
+        [
+          {
+            "node": "Send alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
